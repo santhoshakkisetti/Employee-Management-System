@@ -1,0 +1,404 @@
+-- =====================================================
+-- EMPLOYEE MANAGEMENT SYSTEM (COMPLETE SQL PROJECT)
+-- =====================================================
+
+DROP DATABASE IF EXISTS employee_management_system;
+
+CREATE DATABASE employee_management_system;
+USE employee_management_system;
+
+-- =====================================================
+-- DEPARTMENTS
+-- =====================================================
+
+CREATE TABLE departments(
+dept_id INT AUTO_INCREMENT PRIMARY KEY,
+dept_name VARCHAR(50) NOT NULL,
+location VARCHAR(50)
+);
+
+-- =====================================================
+-- EMPLOYEES
+-- =====================================================
+
+CREATE TABLE employees(
+emp_id INT AUTO_INCREMENT PRIMARY KEY,
+first_name VARCHAR(50),
+last_name VARCHAR(50),
+email VARCHAR(100) UNIQUE,
+phone VARCHAR(15),
+gender ENUM('Male','Female','Other'),
+dob DATE,
+hire_date DATE,
+designation VARCHAR(50),
+salary DECIMAL(10,2),
+dept_id INT,
+
+FOREIGN KEY(dept_id)
+REFERENCES departments(dept_id)
+);
+
+-- =====================================================
+-- ATTENDANCE
+-- =====================================================
+
+CREATE TABLE attendance(
+attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+emp_id INT,
+attendance_date DATE,
+check_in TIME,
+check_out TIME,
+status ENUM('Present','Absent','Leave'),
+
+FOREIGN KEY(emp_id)
+REFERENCES employees(emp_id)
+);
+
+-- =====================================================
+-- PROJECTS
+-- =====================================================
+
+CREATE TABLE projects(
+project_id INT AUTO_INCREMENT PRIMARY KEY,
+project_name VARCHAR(100),
+start_date DATE,
+end_date DATE,
+budget DECIMAL(12,2)
+);
+
+-- =====================================================
+-- EMPLOYEE PROJECTS
+-- =====================================================
+
+CREATE TABLE employee_projects(
+id INT AUTO_INCREMENT PRIMARY KEY,
+emp_id INT,
+project_id INT,
+
+FOREIGN KEY(emp_id)
+REFERENCES employees(emp_id),
+
+FOREIGN KEY(project_id)
+REFERENCES projects(project_id)
+);
+
+-- =====================================================
+-- LEAVE REQUESTS
+-- =====================================================
+
+CREATE TABLE leave_requests(
+leave_id INT AUTO_INCREMENT PRIMARY KEY,
+emp_id INT,
+leave_type VARCHAR(30),
+start_date DATE,
+end_date DATE,
+reason TEXT,
+status ENUM(
+'Pending',
+'Approved',
+'Rejected'
+),
+
+FOREIGN KEY(emp_id)
+REFERENCES employees(emp_id)
+);
+
+-- =====================================================
+-- PAYROLL
+-- =====================================================
+
+CREATE TABLE payroll(
+payroll_id INT AUTO_INCREMENT PRIMARY KEY,
+emp_id INT,
+basic_salary DECIMAL(10,2),
+bonus DECIMAL(10,2),
+deductions DECIMAL(10,2),
+net_salary DECIMAL(10,2),
+
+FOREIGN KEY(emp_id)
+REFERENCES employees(emp_id)
+);
+
+-- =====================================================
+-- PERFORMANCE
+-- =====================================================
+
+CREATE TABLE performance_reviews(
+review_id INT AUTO_INCREMENT PRIMARY KEY,
+emp_id INT,
+rating INT,
+comments TEXT,
+review_date DATE,
+
+FOREIGN KEY(emp_id)
+REFERENCES employees(emp_id)
+);
+
+-- =====================================================
+-- INSERT DEPARTMENTS
+-- =====================================================
+
+INSERT INTO departments(dept_name,location)
+VALUES
+('HR','Hyderabad'),
+('IT','Bangalore'),
+('Finance','Chennai'),
+('Marketing','Mumbai'),
+('Operations','Pune');
+
+-- =====================================================
+-- INSERT EMPLOYEES
+-- =====================================================
+
+INSERT INTO employees
+(first_name,last_name,email,
+phone,gender,dob,
+hire_date,designation,
+salary,dept_id)
+
+VALUES
+
+('Santhosh','Akkisetti',
+'santhosh@gmail.com',
+'9876543210',
+'Male',
+'2003-04-05',
+'2026-01-10',
+'Software Developer',
+50000,2),
+
+('Ravi','Kumar',
+'ravi@gmail.com',
+'9876543211',
+'Male',
+'2002-05-10',
+'2026-02-15',
+'HR Manager',
+65000,1),
+
+('Priya','Sharma',
+'priya@gmail.com',
+'9876543212',
+'Female',
+'2001-08-21',
+'2026-02-20',
+'Accountant',
+45000,3),
+
+('Kiran','Reddy',
+'kiran@gmail.com',
+'9876543213',
+'Male',
+'2000-11-15',
+'2026-03-01',
+'Marketing Executive',
+42000,4),
+
+('Anjali','Verma',
+'anjali@gmail.com',
+'9876543214',
+'Female',
+'2002-06-08',
+'2026-03-10',
+'Team Lead',
+75000,2);
+
+-- =====================================================
+-- PROJECTS
+-- =====================================================
+
+INSERT INTO projects
+(project_name,start_date,end_date,budget)
+VALUES
+
+('Employee Portal',
+'2026-01-01',
+'2026-05-01',
+500000),
+
+('Payroll Automation',
+'2026-02-01',
+'2026-06-01',
+300000),
+
+('Attendance Tracker',
+'2026-03-01',
+'2026-07-01',
+250000);
+
+-- =====================================================
+-- ASSIGN PROJECTS
+-- =====================================================
+
+INSERT INTO employee_projects
+(emp_id,project_id)
+
+VALUES
+(1,1),
+(2,2),
+(3,3),
+(4,1),
+(5,2);
+
+-- =====================================================
+-- ATTENDANCE
+-- =====================================================
+
+INSERT INTO attendance
+(emp_id,attendance_date,
+check_in,check_out,status)
+
+VALUES
+
+(1,'2026-05-20',
+'09:00:00',
+'18:00:00',
+'Present'),
+
+(2,'2026-05-20',
+'09:05:00',
+'18:15:00',
+'Present'),
+
+(3,'2026-05-20',
+NULL,
+NULL,
+'Absent');
+
+-- =====================================================
+-- PAYROLL
+-- =====================================================
+
+INSERT INTO payroll
+(emp_id,basic_salary,
+bonus,deductions,net_salary)
+
+VALUES
+
+(1,50000,5000,2000,53000),
+(2,65000,6000,3000,68000),
+(3,45000,3000,1000,47000);
+
+-- =====================================================
+-- PERFORMANCE
+-- =====================================================
+
+INSERT INTO performance_reviews
+(emp_id,rating,
+comments,review_date)
+
+VALUES
+
+(1,5,'Excellent performance','2026-05-10'),
+(2,4,'Good leadership','2026-05-10'),
+(3,3,'Needs improvement','2026-05-10');
+
+-- =====================================================
+-- VIEW
+-- =====================================================
+
+CREATE VIEW employee_summary AS
+
+SELECT
+e.emp_id,
+e.first_name,
+e.last_name,
+e.designation,
+e.salary,
+d.dept_name
+
+FROM employees e
+
+JOIN departments d
+ON e.dept_id=d.dept_id;
+
+-- =====================================================
+-- STORED PROCEDURE
+-- =====================================================
+
+DELIMITER //
+
+CREATE PROCEDURE GetEmployees()
+
+BEGIN
+
+SELECT * FROM employees;
+
+END //
+
+DELIMITER ;
+
+CALL GetEmployees();
+
+-- =====================================================
+-- TRIGGER
+-- =====================================================
+
+DELIMITER //
+
+CREATE TRIGGER salary_validation
+
+BEFORE INSERT ON employees
+
+FOR EACH ROW
+
+BEGIN
+
+IF NEW.salary < 10000 THEN
+
+SIGNAL SQLSTATE '45000'
+
+SET MESSAGE_TEXT =
+'Salary cannot be less than 10000';
+
+END IF;
+
+END //
+
+DELIMITER ;
+
+-- =====================================================
+-- TEST QUERIES
+-- =====================================================
+
+-- View all employees
+
+SELECT * FROM employees;
+
+-- Employee with department
+
+SELECT
+e.first_name,
+e.designation,
+d.dept_name
+
+FROM employees e
+
+JOIN departments d
+ON e.dept_id=d.dept_id;
+
+-- Highest salary
+
+SELECT *
+FROM employees
+ORDER BY salary DESC
+LIMIT 1;
+
+-- Average salary
+
+SELECT AVG(salary)
+AS AverageSalary
+FROM employees;
+
+-- Employee count department-wise
+
+SELECT
+d.dept_name,
+COUNT(e.emp_id)
+
+FROM departments d
+
+LEFT JOIN employees e
+ON d.dept_id=e.dept_id
+
+GROUP BY d.dept_name;
